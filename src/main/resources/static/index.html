@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 28px;
+        }
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .btn {
+            padding: 15px 40px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        .btn-teacher {
+            background-color: #2563eb;
+        }
+        .btn-teacher:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-student {
+            background-color: #16a34a;
+        }
+        .btn-student:hover {
+            background-color: #15803d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Student Management System</h1>
+        <div class="buttons">
+            <a href="teacher.html" class="btn btn-teacher">Teacher Portal</a>
+            <a href="student.html" class="btn btn-student">Student Portal</a>
+        </div>
+    </div>
+</body>
+</html>

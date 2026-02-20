@@ -1,0 +1,166 @@
+psql -U postgres -d school_db
+GRANT USAGE, CREATE ON SCHEMA public TO school_user;
+GRANT ALL PRIVILEGES ON DATABASE school_db TO school_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO school_user;
+
+
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/school_db
+    username: school_user
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+
+
+
+
+dockerization:
+
+## Dockerization Process for Spring Boot Application
+
+### Step 1: Create Dockerfile
+File: Dockerfile (in project root)
+
+```dockerfile
+# Use Java 17
+FROM eclipse-temurin:17-jdk-jammy
+
+# Set working directory inside container
+WORKDIR /app
+
+# Copy jar file
+COPY target/*.jar app.jar
+
+# Expose port
+EXPOSE 8080
+
+# Run application
+ENTRYPOINT ["java","-jar","app.jar"]
+```
+
+### Step 2: Create docker-compose.yml
+File: docker-compose.yml (in project root)
+
+```yaml
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres18
+    restart: always
+    environment:
+      POSTGRES_DB: school_db
+      POSTGRES_USER: school_user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U school_user -d school_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: studentmanagement-app
+    container_name: student-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/school_db
+      DB_USERNAME: school_user
+      DB_PASSWORD: password
+
+volumes:
+  postgres_data:
+```
+
+### Step 3: Update application.yml for environment variables
+File: src/main/resources/application.yml
+
+```yaml
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+```
+
+### Step 4: Build and Run Commands
+
+# 1. Build the JAR file
+./mvnw clean package -DskipTests
+
+# 2. Build Docker image
+docker build -t studentmanagement-app .
+
+# 3. Start containers (PostgreSQL + App)
+docker compose up -d
+
+# 4. Check logs
+docker logs student-app --tail 30
+
+# 5. Stop containers
+docker compose down
+
+### Useful Docker Commands
+
+# View running containers
+docker ps
+
+# View all containers
+docker ps -a
+
+# Restart containers
+docker compose restart
+
+# Rebuild and restart (after code changes)
+./mvnw clean package -DskipTests
+docker build -t studentmanagement-app .
+docker compose down
+docker compose up -d
+
+# View container logs in real-time
+docker logs -f student-app
+
+# Access PostgreSQL container
+docker exec -it postgres18 psql -U school_user -d school_db
+
+### Access Application
+URL: http://localhost:8080
+
+Testing :
+
+sudo apt install maven
+mvn clean test
+
+
