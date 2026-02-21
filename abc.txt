@@ -1,2 +1,4 @@
 
 ./mvnw -Dtest=StudentControllerTest,TeacherControllerTest test
+
+Test CI trigger - okk
